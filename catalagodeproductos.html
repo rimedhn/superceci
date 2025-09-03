@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Productos</title>
+    <link rel="icon" href="https://github.com/rimedhn/superceci/blob/main/Logosuperceci.jpeg?raw=true" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        html { scrollbar-width: thin; scrollbar-color: #888 #e0e0e0; }
+        .cart-float-button { position: fixed; bottom: 100px; right: 20px; z-index: 50; transition: transform 0.3s ease-in-out; }
+        .cart-float-button.hidden { transform: translateX(150%); }
+        .cart-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .cart-modal.show { opacity: 1; visibility: visible; }
+        .cart-modal-content { background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .cart-modal-close-button { position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; cursor: pointer; color: #4b5563; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="bg-white shadow-md py-6 mb-8">
+        <div class="container mx-auto px-4 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center">
+                <img src="https://github.com/rimedhn/superceci/blob/main/Logosuperceci.jpeg?raw=true" alt="Logotipo" class="h-16 w-16 mr-4 rounded-full shadow-sm">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-gray-800">SUPER CECI</h1>
+                    <p class="text-gray-600">¡Bienvenido a nuestro catálogo en línea!</p>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+<section class="mb-8">
+    <div class="relative w-full overflow-hidden" style="padding-top: 25%;">
+        <img src="https://github.com/rimedhn/servicredith/blob/main/Banner%20Servicredith.png?raw=true" alt="Banner" class="absolute top-0 left-0 w-full h-full object-contain">
+    </div>
+</section>
+
+    <div class="container mx-auto py-4 px-6 md:px-8 flex-grow">
+        <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-8 mt-4">🛍️ Catálogo de Productos</h1>
+
+        <div class="mb-8 p-4 bg-white rounded-lg shadow-md flex flex-wrap items-center justify-center gap-4 text-center font-bold text-blue-600">
+            AGREGA PRODUCTOS AL CARRITO DE COMPRA, TUS DATOS Y ENVÍA TU PEDIDO POR WHATSAPP
+        </div>
+            
+        <div class="flex flex-col lg:flex-row gap-6">
+
+            <aside class="lg:w-1/4 bg-white p-6 rounded-lg shadow-lg h-fit lg:sticky lg:top-8">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4">Categorías</h2>
+                <div id="categoryFilters" class="w-full">
+                    <select id="categorySelect" class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="Todos">Todas las Categorías</option>
+                    </select>
+                </div>
+                <div class="mb-4 mt-4">
+                <input type="text" id="searchBar" placeholder="Buscar productos..." class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+            </aside>
+
+            <main class="lg:w-3/4">
+                <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <p class="text-center text-gray-600 col-span-full">Cargando productos...</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+<button id="viewCartFloatingButton" class="cart-float-button p-4 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition-all duration-300">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        <span id="cartItemCount" class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">0</span>
+    </button>
+
+    <a href="#" target="_blank" id="whatsappFloatingButton" class="fixed bottom-5 right-5 bg-green-300 text-white p-2 rounded-full shadow-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition-all duration-300 z-50">
+        <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 58 58" xmlns="http://www.w3.org/2000/svg">
+            <path style="fill:#2CB742;" d="M0,58l4.988-14.963C2.457,38.78,1,33.812,1,28.5C1,12.76,13.76,0,29.5,0S58,12.76,58,28.5 S45.24,57,29.5,57c-4.789,0-9.299-1.187-13.26-3.273L0,58z"></path>
+            <path style="fill:#FFFFFF;" d="M47.683,37.985c-1.316-2.487-6.169-5.331-6.169-5.331c-1.098-0.626-2.423-0.696-3.049,0.42 c0,0-1.577,1.891-1.978,2.163c-1.832,1.241-3.529,1.193-5.242-0.52l-3.981-3.981l-3.981-3.981c-1.713-1.713-1.761-3.41-0.52-5.242 c0.272-0.401,2.163-1.978,2.163-1.978c1.116-0.627,1.046-1.951,0.42-3.049c0,0-2.844-4.853-5.331-6.169 c-1.058-0.56-2.357-0.364-3.203,0.482l-1.758,1.758c-5.577,5.577-2.831,11.873,2.746,17.45l5.097,5.097l5.097,5.097 c5.577,5.577,11.873,8.323,17.45,2.746l1.758-1.758C48.048,40.341,48.243,39.042,47.683,37.985z"></path>
+        </svg>
+    </a>
+
+    <div id="cartModal" class="cart-modal">
+        <div class="cart-modal-content">
+            <button id="cartModalCloseButton" class="cart-modal-close-button">&times;</button>
+            <h2 class="text-3xl font-bold text-gray-700 mb-6 flex items-center">
+                <span class="mr-2">🛒</span> Tu Carrito de compra
+            </h2>
+
+            <div class="bg-gray-50 p-4 rounded-lg mb-6 shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Datos del Cliente</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="customerName" class="block text-sm font-medium text-gray-700">Nombre Completo</label>
+                        <input type="text" id="customerName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div>
+                        <label for="customerPhone" class="block text-sm font-medium text-gray-700">Teléfono</label>
+                        <input type="tel" id="customerPhone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Ej: +50499887766">
+                    </div>
+                    <div class="col-span-full">
+                        <label for="customerAddress" class="block text-sm font-medium text-gray-700">Dirección</label>
+                        <input type="text" id="customerAddress" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Ej: Col. Modelo, Casa #123">
+                    </div>
+                    <div class="col-span-full">
+                        <label for="additionalNotes" class="block text-sm font-medium text-gray-700">Notas Adicionales</label>
+                        <textarea id="additionalNotes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Ej: Entregar después de las 3 PM, dejar en recepción, etc."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cartItems" class="mb-4">
+                <ul class="divide-y divide-gray-200">
+                    <li class="py-3 text-gray-500">El carrito está vacío.</li>
+                </ul>
+            </div>
+            <div id="cartTotal" class="text-right text-2xl font-bold text-gray-800 mb-6">
+                Total: $0.00
+            </div>
+
+            <button id="continueShoppingButton" class="w-full py-3 px-6 bg-gray-300 text-gray-800 font-bold rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 transition-all duration-200 mb-4 flex items-center justify-center">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
+                Seguir Comprando
+            </button>
+                    
+            <button id="checkoutButton" class="w-full py-3 px-6 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition-all duration-200 flex items-center justify-center">
+                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>
+                Enviar Pedido por WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <div id="customAlertModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[9999] hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <p id="customAlertMessage" class="text-lg font-semibold text-gray-800 mb-4"></p>
+            <button id="customAlertCloseButton" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Aceptar</button>
+        </div>
+    </div>
+    
+    <script>
+        // URL JSON de opensheet.elk.sh para la hoja 'demo1'
+        const OPENSHEET_URL = 'https://opensheet.elk.sh/1FTRD_k4MHjhvPagxd3ScxN7ET0iw8xItC9ryH9IcCOc/CatalagoDigital';
+
+        // Reemplaza con tu número de WhatsApp
+        const WHATSAPP_NUMBER = '50495575737';
+
+        const whatsappFloatingButton = document.getElementById('whatsappFloatingButton');
+        const initialWhatsappMessage = encodeURIComponent("¡Hola! Vengo de tu catalogo de productos y me gustaria comunicarme con un asesor de ventas.");
+        if (whatsappFloatingButton) {
+            whatsappFloatingButton.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${initialWhatsappMessage}`;
+        }
+
+        let allProducts = [];
+        let categories = new Set();
+        let cart = [];
+
+        const cartModal = document.getElementById('cartModal');
+        const viewCartFloatingButton = document.getElementById('viewCartFloatingButton');
+        const cartItemCountSpan = document.getElementById('cartItemCount');
+        const cartModalCloseButton = document.getElementById('cartModalCloseButton');
+        const searchBar = document.getElementById('searchBar'); 
+
+        // --- Modal personalizado ---
+        function showCustomAlert(message, buttonType = null) {
+            const modal = document.getElementById('customAlertModal');
+            const msgElement = document.getElementById('customAlertMessage');
+            const closeButton = document.getElementById('customAlertCloseButton');
+            msgElement.textContent = message;
+            modal.classList.add('hidden'); 
+            modal.classList.remove('hidden'); 
+            closeButton.onclick = null; 
+            const buttonsContainer = closeButton.parentNode;
+            const existingViewCartButton = buttonsContainer.querySelector('.view-cart-btn-temp');
+            if (existingViewCartButton) {
+                existingViewCartButton.remove();
+            }
+            if (buttonType === 'cartConfirmation') {
+                closeButton.textContent = 'Volver';
+                closeButton.className = 'px-6 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400';
+                closeButton.onclick = () => { modal.classList.add('hidden'); };
+                const viewCartButton = document.createElement('button');
+                viewCartButton.textContent = 'Ver Carrito';
+                viewCartButton.className = 'px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ml-4 view-cart-btn-temp';
+                viewCartButton.onclick = () => {
+                    modal.classList.add('hidden');
+                    const cartModal = document.getElementById('cartModal');
+                    if (cartModal) {
+                        cartModal.classList.remove('hidden'); 
+                        cartModal.classList.add('show');
+                    }
+                };
+                buttonsContainer.appendChild(viewCartButton);
+            } else {
+                closeButton.textContent = 'Aceptar';
+                closeButton.className = 'px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500';
+                closeButton.onclick = () => { modal.classList.add('hidden'); };
+            }
+            modal.onclick = (event) => {
+                if (event.target === modal) {
+                    // modal.classList.add('hidden');
+                }
+            };
+        }
+
+        // --- Cargar productos desde JSON ---
+        async function loadProducts() {
+            try {
+                const response = await fetch(OPENSHEET_URL);
+                const data = await response.json();
+                console.log("Datos recibidos:", data); // <-- Verifica aquí
+
+                allProducts = data
+                    .map(product => ({
+                        id: product["ID"],
+                        name: product["Nombre Producto"],
+                        description: product["Descripción"],
+                        price: parseFloat(product["Precio"]),
+                        category: product["Categoría"],
+                        imageUrl: product["Imagen URL"],
+                        status: product["Estado"]
+                    }))
+                    .filter(product => product.status && product.status.toLowerCase() === 'activo');
+
+                categories.clear();
+                allProducts.forEach(product => {
+                    if (product.category) categories.add(product.category);
+                });
+                populateCategorySelect();
+                renderProducts('Todos');
+            } catch (error) {
+                console.error('Error al cargar los productos:', error);
+                showCustomAlert('Error al cargar los productos desde la hoja de Google.');
+                document.getElementById('productGrid').innerHTML = '<p class="text-center text-red-500 col-span-full">Error al cargar los productos.</p>';
+            }
+        }
+
+        function populateCategorySelect() {
+            const categorySelect = document.getElementById('categorySelect');
+            categorySelect.innerHTML = '<option value="Todos">Todas las Categorías</option>';
+            const sortedCategories = Array.from(categories).sort();
+            sortedCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        function renderProducts(filterCategory) {
+            const productGrid = document.getElementById('productGrid');
+            productGrid.innerHTML = '';
+            let productsToProcess = [];
+            if (filterCategory === 'Todos') {
+                productsToProcess = allProducts;
+            } else {
+                productsToProcess = allProducts.filter(product => product.category === filterCategory);
+            }
+            const searchTerm = searchBar.value.toLowerCase();
+            let finalProductsToDisplay = productsToProcess.filter(product => {
+                return (product.name || '').toLowerCase().includes(searchTerm) ||
+                       (product.description || '').toLowerCase().includes(searchTerm) ||
+                       (product.category && product.category.toLowerCase().includes(searchTerm)) ||
+                       (product.id && product.id.toLowerCase().includes(searchTerm)) ||
+                       (product.price && product.price.toString().includes(searchTerm));
+            });
+            if (finalProductsToDisplay.length === 0) {
+                productGrid.innerHTML = '<p class="text-center text-gray-600 col-span-full">No se encontraron productos que coincidan con los filtros aplicados.</p>';
+                return;
+            }
+            if (filterCategory === 'Todos') {
+                const groupedProducts = {};
+                finalProductsToDisplay.forEach(product => {
+                    if (!groupedProducts[product.category]) groupedProducts[product.category] = [];
+                    groupedProducts[product.category].push(product);
+                });
+                const sortedCategories = Array.from(categories).sort();
+                sortedCategories.forEach(category => {
+                    if (groupedProducts[category] && groupedProducts[category].length > 0) {
+                        const categoryHeader = document.createElement('h2');
+                        categoryHeader.classList.add('col-span-full', 'text-2xl', 'font-bold', 'text-gray-700', 'mt-6', 'mb-4', 'border-b-2', 'border-gray-200', 'pb-2');
+                        categoryHeader.textContent = category;
+                        productGrid.appendChild(categoryHeader);
+                        const sortedCategoryProducts = groupedProducts[category].sort((a, b) => a.name.localeCompare(b.name));
+                        sortedCategoryProducts.forEach(product => {
+                            createProductCard(productGrid, product);
+                        });
+                    }
+                });
+            } else {
+                finalProductsToDisplay.sort((a, b) => a.name.localeCompare(b.name));
+                finalProductsToDisplay.forEach(product => {
+                    createProductCard(productGrid, product);
+                });
+            }
+        }
+
+        function createProductCard(container, product) {
+            const productCard = document.createElement('div');
+            productCard.classList.add(
+                'bg-white', 'rounded-xl', 'shadow-lg', 'overflow-hidden', 'text-center',
+                'p-1.5', 'transition-all', 'duration-300', 'hover:shadow-xl', 'hover:scale-105',
+                'flex', 'flex-col'
+            );
+            const imageUrl = product.imageUrl || `https://placehold.co/300x200/e0e0e0/555555?text=${encodeURIComponent(product.name || 'Producto')}`;
+            productCard.innerHTML = `
+            <a href="${imageUrl}"
+               data-fslightbox
+               data-type="image"
+               data-title="${product.name}">
+                <img src="${imageUrl}" alt="${product.name}" class="w-full h-40 object-contain rounded-md mb-2" onerror="this.onerror=null;this.src='https://placehold.co/300x200/e0e0e0/555555?text=Imagen+no+disponible';">
+            </a>
+                <h3 class="text-xl font-bold text-gray-800 mb-0.5 flex-grow">${product.name}</h3>
+                <p class="text-gray-600 text-sm mb-0.5 line-clamp-3">${product.description}</p>
+                <div class="text-2xl font-extrabold text-green-600 mb-0.5">L${product.price.toFixed(2)}</div>
+                <div class="flex items-center justify-center space-x-2 mt-2 mb-2">
+                <button data-product-id="${product.id}" data-action="decrease-card" class="quantity-card-btn p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                </button>
+                <input type="number" value="1" min="1" data-product-id="${product.id}" class="quantity-card-input w-16 text-center border border-gray-300 rounded-md p-1" style="-moz-appearance: textfield; appearance: textfield;">
+                <button data-product-id="${product.id}" data-action="increase-card" class="quantity-card-btn p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                </button>
+                </div>
+                <button data-product-id="${product.id}" class="mt-auto w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-all duration-200 add-to-cart-btn">
+                    Agregar al Carrito
+                </button>
+            `;
+            container.appendChild(productCard);
+
+            productCard.querySelector('.add-to-cart-btn').addEventListener('click', (event) => {
+                const productId = event.target.getAttribute('data-product-id');
+                const quantityInput = productCard.querySelector(`.quantity-card-input[data-product-id="${productId}"]`);
+                const quantity = parseInt(quantityInput.value);
+                addProductToCart(productId, quantity); 
+            });
+
+            productCard.querySelectorAll('.quantity-card-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const productId = event.currentTarget.getAttribute('data-product-id');
+                    const action = event.currentTarget.getAttribute('data-action');
+                    const quantityInput = productCard.querySelector(`.quantity-card-input[data-product-id="${productId}"]`);
+                    let currentQuantity = parseInt(quantityInput.value);
+                    if (action === 'increase-card') {
+                        currentQuantity++;
+                    } else if (action === 'decrease-card' && currentQuantity > 1) {
+                        currentQuantity--;
+                    }
+                    quantityInput.value = currentQuantity;
+                });
+            });
+
+            productCard.querySelector('.quantity-card-input').addEventListener('wheel', (event) => {
+                event.preventDefault();
+            });
+        }
+
+        function addProductToCart(productId, quantityToAdd = 1) {
+            const product = allProducts.find(p => p.id == productId);
+            if (product) {
+                const existingItem = cart.find(item => item.id == productId);
+                if (existingItem) {
+                    existingItem.quantity += quantityToAdd;
+                } else {
+                    cart.push({ ...product, quantity: quantityToAdd });
+                }
+                renderCart();
+                updateFloatingCartButton();
+                showCustomAlert(`${product.id} - ${product.description} ha sido agregado al carrito.`, `cartConfirmation`);
+            } else {
+                showCustomAlert('Error: Producto no encontrado.');
+            }
+        }
+
+        function renderCart() {
+            const cartItemsUl = document.getElementById('cartItems').querySelector('ul');
+            const cartTotalDiv = document.getElementById('cartTotal');
+            cartItemsUl.innerHTML = '';
+            let total = 0;
+            if (cart.length > 0) {
+                const headerRow = document.createElement('li');
+                headerRow.classList.add('py-2', 'text-gray-600', 'font-bold', 'border-b', 'border-gray-300', 'mb-2');
+                headerRow.style.display = 'grid';
+                headerRow.style.gridTemplateColumns = '25% 30% 30% 15%';
+                headerRow.innerHTML = `
+                    <div class="text-center">Cantidad</div>
+                    <div class="text-center">Precio Unit.</div>
+                    <div class="text-right">Subtotal</div>
+                    <div class="text-center"></div> `;
+                cartItemsUl.appendChild(headerRow);
+            }
+            if (cart.length === 0) {
+                cartItemsUl.innerHTML = '<li class="py-3 text-gray-500">El carrito está vacío.</li>';
+                viewCartFloatingButton.classList.add('hidden');
+            } else {
+                cart.forEach((item, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('py-3', 'text-gray-700', 'border-b', 'border-gray-100');
+                listItem.innerHTML = `
+                    <div class="text-left mb-2"> <span class="font-semibold text-lg">${item.name}</span>
+                        <span class="text-sm text-gray-500 block">${item.description}</span>
+                    </div>
+                    <div class="grid items-center gap-2" style="grid-template-columns: 25% 30% 30% 15%;">
+                        <div class="flex items-center justify-center space-x-0.5 sm:space-x-2">
+                            <button data-product-id="${item.id}" data-action="decrease" class="quantity-btn p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                            </button>
+                            <input type="number" value="${item.quantity}" min="1" data-product-id="${item.id}" class="quantity-input w-12 sm:w-16 text-center border border-gray-300 rounded-md p-1 text-sm" style="-moz-appearance: textfield; appearance: textfield;">
+                            <button data-product-id="${item.id}" data-action="increase" class="quantity-btn p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            </button>
+                        </div>
+                        <div class="text-center whitespace-nowrap text-sm sm:text-base">L${item.price.toFixed(2)}</div>
+                        <div class="text-right whitespace-nowrap font-semibold text-sm sm:text-base">L${(item.price * item.quantity).toFixed(2)}</div>
+                        <div class="flex items-center justify-center">
+                            <button data-product-id="${item.id}" class="remove-item-btn text-red-500 hover:text-red-700 focus:outline-none p-1">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                cartItemsUl.appendChild(listItem);
+                total += item.price * item.quantity;
+                });
+
+                cartItemsUl.querySelectorAll('.quantity-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const productId = event.currentTarget.getAttribute('data-product-id');
+                        const action = event.currentTarget.getAttribute('data-action');
+                        updateProductQuantity(productId, action);
+                    });
+                });
+
+                cartItemsUl.querySelectorAll('.quantity-input').forEach(input => {
+                    input.addEventListener('change', (event) => {
+                        const productId = event.target.getAttribute('data-product-id');
+                        const newQuantity = parseInt(event.target.value);
+                        updateProductQuantity(productId, 'manual', newQuantity);
+                    });
+                    input.addEventListener('wheel', (event) => {
+                        event.preventDefault();
+                    });
+                });
+
+                cartItemsUl.querySelectorAll('.remove-item-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const productId = event.currentTarget.getAttribute('data-product-id');
+                        removeProductCompletely(productId);
+                    });
+                });
+                viewCartFloatingButton.classList.remove('hidden');
+            }
+            cartTotalDiv.textContent = `Total: L${total.toFixed(2)}`;
+            updateFloatingCartButton();
+        }
+
+        function updateProductQuantity(productId, action, newQuantity) {
+            const existingItem = cart.find(item => item.id == productId);
+            if (existingItem) {
+                if (action === 'increase') {
+                    existingItem.quantity++;
+                } else if (action === 'decrease') {
+                    existingItem.quantity--;
+                } else if (action === 'manual' && newQuantity >= 1) {
+                    existingItem.quantity = newQuantity;
+                }
+                if (existingItem.quantity <= 0) {
+                    removeProductCompletely(productId);
+                } else {
+                    renderCart();
+                }
+            }
+        }
+
+        function removeProductCompletely(productId) {
+            cart = cart.filter(item => item.id != productId);
+            renderCart();
+            updateFloatingCartButton();
+        }
+
+        function updateFloatingCartButton() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartItemCountSpan.textContent = totalItems;
+            if (totalItems > 0) {
+                viewCartFloatingButton.classList.remove('hidden');
+            } else {
+                viewCartFloatingButton.classList.add('hidden');
+            }
+        }
+
+        function sendWhatsAppOrder() {
+            if (cart.length === 0) {
+                showCustomAlert('Tu carrito está vacío. Agrega productos antes de enviar el pedido.');
+                return;
+            }
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+            const customerAddress = document.getElementById('customerAddress').value.trim();
+            const additionalNotes = document.getElementById('additionalNotes').value.trim();
+            if (!customerName || !customerPhone || !customerAddress) {
+                showCustomAlert('Por favor, completa tu Nombre, Teléfono y Dirección para enviar el pedido.');
+                return;
+            }
+            let orderSummary = `¡Hola! Me gustaría hacer un pedido desde el catálogo.\n\n`;
+            orderSummary += `*DATOS DEL CLIENTE:*\n`;
+            orderSummary += `Nombre: ${customerName}\n`;
+            orderSummary += `Teléfono: ${customerPhone}\n`;
+            orderSummary += `Dirección: ${customerAddress}\n`;
+            if (additionalNotes) {
+                orderSummary += `Notas: ${additionalNotes}\n`;
+            }
+            orderSummary += `\n*DETALLES DEL PEDIDO:*\n`;
+            let total = 0;
+            cart.forEach(item => {
+                orderSummary += `- *${item.id}* - *${item.description}*\n`; 
+                orderSummary += `  Cantidad: *${item.quantity}* | Precio Unit: *L${item.price.toFixed(2)}* | Subtotal: *L${(item.price * item.quantity).toFixed(2)}*\n\n`;
+                total += item.price * item.quantity;
+            });
+            orderSummary += `\n*Total a Pagar: L${total.toFixed(2)}*\n`;
+            orderSummary += `\n¡Muchas Gracias!`;
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(orderSummary)}`;
+            window.open(whatsappUrl, '_blank');
+            cart = [];
+            renderCart();
+            cartModal.classList.remove('show');
+            showCustomAlert('Muchas gracias!; Tu pedido ha sido enviado a WhatsApp! Te contactaremos pronto.');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            const categorySelect = document.getElementById('categorySelect');
+            if (categorySelect) {
+                categorySelect.addEventListener('change', (event) => {
+                    renderProducts(event.target.value);
+                });
+            }
+            const searchBar = document.getElementById('searchBar');
+            if (searchBar) {
+                searchBar.addEventListener('input', function() {
+                    renderProducts(categorySelect.value);
+                });
+            }
+            document.getElementById('checkoutButton').addEventListener('click', sendWhatsAppOrder);
+            viewCartFloatingButton.addEventListener('click', () => {
+                renderCart();
+                cartModal.classList.add('show');
+            });
+            cartModalCloseButton.addEventListener('click', () => {
+                cartModal.classList.remove('show');
+            });
+            cartModal.addEventListener('click', (event) => {
+                if (event.target === cartModal) {
+                    cartModal.classList.remove('show');
+                }
+            });
+            const continueShoppingButton = document.getElementById('continueShoppingButton');
+            if (continueShoppingButton) {
+                continueShoppingButton.addEventListener('click', () => {
+                    cartModal.classList.remove('show');
+                });
+            }
+            updateFloatingCartButton();
+            showCustomAlert("¡BIENVENIDO! AGREGA PRODUCTOS AL CARRITO DE COMPRA, TUS DATOS Y ENVÍA TU PEDIDO POR WHATSAPP!");
+        });
+    </script>
+         
+<footer class="bg-gray-800 text-white py-8 mt-12">
+    <div class="container mx-auto px-4 text-center">
+        <p class="text-sm mb-4">
+            &copy; 2025 Super Ceci. Todos los derechos reservados. Las Vegas Victoria, Yoro. 
+            <a href="mailto:gerentesuperceci@gmail.com" class="text-blue-400 hover:underline">gerentesuperceci@gmail.com</a>  <a href="tel:+50495575737" class="text-blue-400 hover:underline">+504 9557-5737</a>
+            <br>Catálogo de productos desarrollado por: Rimed Digital,  <a href="mailto:indime.hn@gmail.com" class="text-blue-400 hover:underline">indime.hn@gmail.com</a>  <a href="tel:+50493593126" class="text-blue-400 hover:underline">+50493593126</a>
+            </p>
+        </div>
+        <div class="flex justify-left space-x-6 ml-5 mb-4">
+            <a href="https://www.facebook.com/[tu_usuario_facebook]" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 transition-colors duration-200">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33V22C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                </svg>
+            </a>
+            <a href="https://www.instagram.com/[tu_usuario_instagram]" target="_blank" rel="noopener noreferrer" class="text-pink-400 hover:text-pink-300 transition-colors duration-200">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.82.399-1.148.734-.329.335-.542.69-.734 1.148-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.82.734 1.149.335.329.69.542 1.148.734.353.137.882.3 1.857.344 1.023.047 1.351.058 3.807.058h.468c2.456 0 2.784-.011 3.807-.058.975-.045 1.504-.207 1.857-.344.466-.182.82-.399 1.149-.734.329-.335.542-.69.734-1.149.137-.353.3-.882.344-1.857.047-1.023.058-1.351.058-3.807v-.468c0-2.456-.011-2.784-.058-3.807-.045-.975-.207-1.504-.344-1.857a4.902 4.902 0 00-.734-1.149 4.902 4.902 0 00-1.149-.734c-.353-.137-.882-.3-1.857-.344C14.769 1.812 14.441 1.802 12 1.802zm0 6a4 4 0 100 8 4 4 0 000-8zm0 2a2 2 0 110 4 2 2 0 010-4zm6.5-.25a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5z" clip-rule="evenodd" />
+                </svg>
+            </a>
+            <a href="https://www.tiktok.com/@tu_usuario_tiktok" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-300 transition-colors duration-200">
+<!-- License: MIT. Made by edent: https://github.com/edent/SuperTinyIcons -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+aria-label="TikTok" role="img"
+viewBox="0 0 10 10"><rect
+rx="15%" height="8" width="8"
+fill="#fff"/><defs><path id="t" d="M219 200a117 117 0 1 0 101 115v-128a150 150 0 0 0 88 28v-63a88 88 0 0 1-88-88h-64v252a54 54 0 1 1-37-51z" style="mix-blend-mode:multiply"/></defs><use href="#t" fill="#f05" x="18" y="15"/><use href="#t" fill="#0ee"/></svg>
+        </div>
+        </footer>
+<script src="https://cdn.jsdelivr.net/npm/fslightbox.js/index.js"></script>
+</body>
+</html>
